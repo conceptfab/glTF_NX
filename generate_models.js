@@ -71,8 +71,13 @@ async function getModelInfo(gltfPath) {
       for (const buffer of gltfData.buffers) {
         if (buffer.uri) {
           const binPath = join(dirname(gltfPath), buffer.uri);
-          if (statSync(binPath)) {
+          // Sprawdź, czy plik istnieje przed pobraniem jego rozmiaru
+          if (existsSync(binPath)) {
             totalSizeBytes += statSync(binPath).size;
+          } else {
+            console.warn(
+              `  ⚠️ Plik binarny ${binPath} nie istnieje, pomijanie w obliczeniach rozmiaru.`
+            );
           }
         }
       }
@@ -83,8 +88,13 @@ async function getModelInfo(gltfPath) {
       for (const image of gltfData.images) {
         if (image.uri) {
           const texturePath = join(dirname(gltfPath), image.uri);
-          if (statSync(texturePath)) {
+          // Sprawdź, czy plik istnieje przed pobraniem jego rozmiaru
+          if (existsSync(texturePath)) {
             totalSizeBytes += statSync(texturePath).size;
+          } else {
+            console.warn(
+              `  ⚠️ Plik tekstury ${texturePath} nie istnieje, pomijanie w obliczeniach rozmiaru.`
+            );
           }
         }
       }
@@ -231,6 +241,19 @@ async function generateIndex(onlyNew = false) {
     const modelsDir = 'models';
     const indexData = [];
     let existingModels = [];
+    // Lista rozszerzeń plików do sumowania rozmiaru
+    const sizeExtensions = [
+      '.gltf',
+      '.glb',
+      '.bin',
+      '.jpg',
+      '.jpeg',
+      '.png',
+      '.webp',
+      '.bmp',
+      '.gif',
+      '.tiff',
+    ];
 
     // Wczytaj istniejący index.json jeśli istnieje
     const indexPath = join(modelsDir, 'index.json');
@@ -272,54 +295,81 @@ async function generateIndex(onlyNew = false) {
         );
         if (existingModel) {
           console.log(`  ⏭️ Pomijanie istniejącego modelu: ${folder}`);
-          indexData.push(existingModel);
+          indexData.push(existingModel); // Dodaj istniejący model z poprzedniego indeksu
           continue;
         }
       }
 
+      let totalFolderSizeBytes = 0;
+      let modelFiles = [];
+      const currentModelPath = join(modelsDir, folder);
+
+      try {
+        const filesInFolder = readdirSync(currentModelPath);
+        for (const file of filesInFolder) {
+          const filePath = join(currentModelPath, file);
+          const fileExt = '.' + file.split('.').pop().toLowerCase();
+
+          // Sprawdź, czy plik ma rozszerzenie do zsumowania rozmiaru
+          if (sizeExtensions.includes(fileExt)) {
+            try {
+              totalFolderSizeBytes += statSync(filePath).size;
+            } catch (statError) {
+              console.warn(
+                `  ⚠️ Nie można odczytać rozmiaru pliku ${filePath}: ${statError.message}`
+              );
+            }
+          }
+
+          // Zbierz pliki .gltf/.glb do listy
+          if (['.gltf', '.glb'].includes(fileExt)) {
+            const relPath = normalizePath(join(folder, file));
+            modelFiles.push(relPath);
+            console.log(`  ✅ Znaleziono plik modelu: ${relPath}`);
+          }
+        }
+      } catch (readDirError) {
+        console.error(
+          `❌ Błąd podczas odczytu folderu ${currentModelPath}: ${readDirError.message}`
+        );
+        continue; // Przejdź do następnego folderu w razie błędu
+      }
+
+      // Oblicz rozmiar w MB
+      const fileSizeMB =
+        Math.round((totalFolderSizeBytes / (1024 * 1024)) * 100) / 100;
+
+      console.log(`  📊 Całkowity rozmiar plików: ${fileSizeMB} MB`);
+
       const modelData = {
         name: folder,
         model_hash: modelHash,
-        gltf_files: [],
-        config_path: null,
-        model_info: {},
+        gltf_files: modelFiles,
+        config_path: null, // Zostanie ustawione poniżej, jeśli istnieje
+        model_info: {
+          file_size_mb: fileSizeMB, // Zapisz obliczony rozmiar
+          // Można tu opcjonalnie dodać trójkąty/wierzchołki, jeśli potrzebne
+          // np. pobierając info z pierwszego pliku .gltf/.glb
+        },
       };
-
-      // Wyszukiwanie plików GLTF i GLB
-      ['gltf', 'glb'].forEach((ext) => {
-        const files = readdirSync(join(modelsDir, folder)).filter((file) =>
-          file.endsWith(`.${ext}`)
-        );
-
-        for (const file of files) {
-          const fullPath = join(modelsDir, folder, file);
-          // Konwertuj ścieżkę do formatu URL
-          const relPath = normalizePath(join(folder, file));
-          modelData.gltf_files.push(relPath);
-
-          // Pobranie informacji o modelu
-          const modelInfo = getModelInfo(fullPath);
-          if (modelInfo) {
-            modelData.model_info = modelInfo;
-          }
-
-          console.log(`  ✅ Znaleziono plik: ${relPath}`);
-          console.log(`  📊 Trójkąty: ${modelInfo?.triangles || 'N/A'}`);
-          console.log(
-            `  📊 Rozmiar pliku: ${modelInfo?.file_size_mb || 'N/A'} MB`
-          );
-        }
-      });
 
       // Sprawdzanie istnienia config.json
       const configPath = join(modelsDir, folder, 'config.json');
-      if (statSync(configPath)) {
-        const relConfig = normalizePath(join(folder, 'config.json'));
-        modelData.config_path = relConfig;
-        console.log(`  ✅ Znaleziono config.json: ${relConfig}`);
+      try {
+        // Używamy statSync w try-catch, aby obsłużyć brak pliku
+        if (existsSync(configPath) && statSync(configPath).isFile()) {
+          const relConfig = normalizePath(join(folder, 'config.json'));
+          modelData.config_path = relConfig;
+          console.log(`  ✅ Znaleziono config.json: ${relConfig}`);
+        }
+      } catch (configStatError) {
+        // Ignoruj błąd, jeśli config.json nie istnieje lub jest niedostępny
+        console.warn(
+          `  ⚠️ Nie można sprawdzić statusu config.json w ${folder}: ${configStatError.message}`
+        );
       }
 
-      // Walidacja danych
+      // Walidacja danych (sprawdzenie, czy znaleziono pliki modelu)
       if (modelData.gltf_files.length === 0) {
         console.log(`  ⚠️ Brak plików GLTF/GLB w folderze ${folder}`);
         continue;
