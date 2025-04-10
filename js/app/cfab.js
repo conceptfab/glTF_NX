@@ -54,6 +54,23 @@ function toggleControlBar(show) {
   isControlBarVisible = show;
 }
 
+// Funkcja do aktualizacji stanu panelu i przycisku
+function updatePanelState() {
+  const panel = document.querySelector('.models-panel');
+  const toggleBtn = document.querySelector('.toggle-panel');
+  if (!panel || !toggleBtn) return;
+
+  // Sprawdzamy czy panel jest widoczny
+  const isPanelVisible = !panel.classList.contains('translate-x-full');
+
+  // Aktualizujemy stan przycisku
+  if (isPanelVisible) {
+    toggleBtn.classList.add('hidden');
+  } else {
+    toggleBtn.classList.remove('hidden');
+  }
+}
+
 // Funkcja do chowania/pokazywania panelu bocznego
 function toggleSidePanel() {
   const panel = document.querySelector('.models-panel');
@@ -64,30 +81,10 @@ function toggleSidePanel() {
 
   if (isSidePanelVisible) {
     panel.classList.remove('translate-x-full');
-    // Ukrywamy przycisk używając klas CSS
     toggleBtn.classList.add('hidden');
-    // Ukrywamy gizmo
-    if (gizmo && gizmo.domElement) {
-      gizmo.domElement.style.transition =
-        'right 0.3s ease-in-out, opacity 0.3s ease-in-out';
-      gizmo.domElement.style.right = '288px';
-      gizmo.domElement.style.opacity = '0';
-      gizmo.domElement.style.visibility = 'hidden';
-      gizmo.domElement.style.pointerEvents = 'none';
-    }
   } else {
     panel.classList.add('translate-x-full');
-    // Pokazujemy przycisk po zakończeniu animacji
-    setTimeout(() => {
-      toggleBtn.classList.remove('hidden');
-      // Pokazujemy gizmo
-      if (gizmo && gizmo.domElement) {
-        gizmo.domElement.style.right = '16px';
-        gizmo.domElement.style.opacity = '1';
-        gizmo.domElement.style.visibility = 'visible';
-        gizmo.domElement.style.pointerEvents = 'auto';
-      }
-    }, 300);
+    toggleBtn.classList.remove('hidden');
   }
 }
 
@@ -788,8 +785,10 @@ async function loadModel(model) {
 
     // Po załadowaniu modelu, ukryj panel boczny
     const modelsPanel = document.querySelector('.models-panel');
-    if (modelsPanel) {
-      modelsPanel.classList.remove('visible');
+    const togglePanel = document.getElementById('togglePanel');
+    if (modelsPanel && togglePanel) {
+      modelsPanel.classList.add('translate-x-full');
+      togglePanel.classList.remove('hidden');
     }
   } catch (error) {
     console.error('Błąd podczas wczytywania modelu:', error);
@@ -984,17 +983,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const modelsPanel = document.querySelector('.models-panel');
   const modelsList = document.getElementById('modelsList');
 
-  togglePanel.addEventListener('click', () => {
-    modelsPanel.classList.toggle('visible');
-    togglePanel.classList.toggle('active');
-  });
+  if (togglePanel) {
+    togglePanel.addEventListener('click', toggleSidePanel);
+  }
 
   // Obsługa wyboru modelu
-  modelsList.addEventListener('click', (event) => {
-    const modelButton = event.target.closest('.model-button');
-    if (modelButton) {
-      // Ukryj tylko panel, nie przycisk
-      modelsPanel.classList.remove('visible');
-    }
-  });
+  if (modelsList) {
+    modelsList.addEventListener('click', (event) => {
+      const modelButton = event.target.closest('.model-button');
+      if (modelButton) {
+        if (modelsPanel) {
+          modelsPanel.classList.add('translate-x-full');
+        }
+        if (togglePanel) {
+          togglePanel.classList.remove('hidden');
+        }
+      }
+    });
+  }
 });
