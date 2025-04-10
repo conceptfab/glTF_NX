@@ -64,10 +64,8 @@ function toggleSidePanel() {
 
   if (isSidePanelVisible) {
     panel.classList.remove('translate-x-full');
-    // Ukrywamy przycisk
-    toggleBtn.style.visibility = 'hidden';
-    toggleBtn.style.opacity = '0';
-    toggleBtn.style.pointerEvents = 'none';
+    // Ukrywamy przycisk używając klas CSS
+    toggleBtn.classList.add('hidden');
     // Ukrywamy gizmo
     if (gizmo && gizmo.domElement) {
       gizmo.domElement.style.transition =
@@ -81,9 +79,7 @@ function toggleSidePanel() {
     panel.classList.add('translate-x-full');
     // Pokazujemy przycisk po zakończeniu animacji
     setTimeout(() => {
-      toggleBtn.style.visibility = 'visible';
-      toggleBtn.style.opacity = '1';
-      toggleBtn.style.pointerEvents = 'auto';
+      toggleBtn.classList.remove('hidden');
       // Pokazujemy gizmo
       if (gizmo && gizmo.domElement) {
         gizmo.domElement.style.right = '16px';
@@ -792,10 +788,8 @@ async function loadModel(model) {
 
     // Po załadowaniu modelu, ukryj panel boczny
     const modelsPanel = document.querySelector('.models-panel');
-    const togglePanel = document.getElementById('togglePanel');
-    if (modelsPanel && togglePanel) {
+    if (modelsPanel) {
       modelsPanel.classList.remove('visible');
-      togglePanel.classList.remove('active');
     }
   } catch (error) {
     console.error('Błąd podczas wczytywania modelu:', error);
@@ -999,9 +993,8 @@ document.addEventListener('DOMContentLoaded', () => {
   modelsList.addEventListener('click', (event) => {
     const modelButton = event.target.closest('.model-button');
     if (modelButton) {
-      // Ukryj panel po wybraniu modelu
+      // Ukryj tylko panel, nie przycisk
       modelsPanel.classList.remove('visible');
-      togglePanel.classList.remove('active');
     }
   });
 });
