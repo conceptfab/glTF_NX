@@ -1,0 +1,262 @@
+@import url('https://fonts.googleapis.com/css?family=Dosis:200,300,400,500,600,700,800');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #848484;
+  /* CFAB color */
+  font-family: 'Dosis', sans-serif;
+  background-image: url('../img/background.jpg');
+  background-repeat: repeat;
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  border: 0;
+  display: block;
+  color: rgb(247, 241, 241);
+  font-size: 1.9em;
+}
+header {
+  width: 100%;
+  height: 80px;
+  background-color: #3823a2;
+}
+
+a {
+  color: #5d5d5d;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+a:hover {
+  color: #3823a2;
+}
+
+#info {
+  width: 100%;
+  opacity: 0;
+  position: absolute;
+  top: 25px;
+  left: 25px;
+  z-index: 5;
+  display: block;
+}
+
+.title {
+  font-weight: 100;
+  height: 100%;
+}
+
+.text {
+  height: 100%;
+  font-weight: 300;
+  background-color: none;
+  font-size: 0.65em;
+}
+
+.version {
+  margin-top: 6px;
+  font-size: 0.5em;
+}
+
+a {
+  text-decoration: none;
+  font-weight: 500;
+}
+
+a:hover {
+  color: #3823a2;
+}
+
+/* Custom styles */
+.models-panel {
+  @apply fixed right-0 top-0 h-full 
+         bg-gray-900/80 
+         w-72 
+         border-l border-gray-800
+         transform transition-all duration-300 ease-in-out
+         backdrop-blur-sm;
+  z-index: 1000;
+}
+
+.models-panel.hidden {
+  @apply translate-x-full;
+}
+
+.models-section {
+  @apply p-4 h-full flex flex-col;
+}
+
+.models-section h2 {
+  @apply text-lg font-medium text-gray-200 mb-4
+         flex items-center justify-between;
+}
+
+.models-list {
+  @apply space-y-2 overflow-y-auto flex-1;
+}
+
+/* Scrollbar styles */
+.models-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.models-list::-webkit-scrollbar-track {
+  @apply bg-gray-800;
+}
+
+.models-list::-webkit-scrollbar-thumb {
+  @apply bg-gray-600 rounded-full;
+}
+
+.models-list::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500;
+}
+
+.model-item {
+  @apply flex items-center justify-between
+         p-2 rounded-md
+         bg-gray-800/50 hover:bg-gray-800
+         cursor-pointer
+         border border-gray-700/50
+         transition-all duration-200;
+}
+
+.model-item.active {
+  @apply bg-gray-800 border-blue-500;
+}
+
+.model-item-name {
+  @apply text-sm text-gray-300 font-medium;
+}
+
+.model-item-info {
+  @apply text-xs text-gray-400;
+}
+
+.toggle-panel {
+  @apply fixed right-4 top-1/2 -translate-y-1/2
+         bg-gray-900/95 
+         p-2 rounded-lg
+         border border-gray-800
+         shadow-lg 
+         hover:bg-gray-800 
+         transition-all duration-300 ease-in-out
+         z-10;
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.toggle-panel svg {
+  @apply w-5 h-5 text-gray-300 transition-transform duration-300 ease-in-out;
+}
+
+.lighting-section {
+  @apply mt-4 border-t border-gray-800 pt-4;
+}
+
+.lighting-section h2 {
+  @apply text-lg font-medium text-gray-200 mb-4;
+}
+
+.lighting-controls {
+  @apply space-y-3;
+}
+
+.bottom-controls {
+  @apply fixed bottom-4 left-1/2 transform -translate-x-1/2 
+         bg-gray-900/95 
+         px-6 py-1.5 rounded-lg
+         shadow-xl
+         flex items-center justify-center gap-2
+         max-w-4xl w-[95%]
+         border border-gray-800
+         transition-all duration-300 ease-in-out;
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+
+.btn-view {
+  @apply flex items-center gap-1.5 px-3 py-1
+         text-gray-300 text-sm font-medium
+         hover:text-white hover:bg-gray-800
+         rounded-md
+         transition-all duration-200
+         focus:outline-none;
+}
+
+.btn-view svg {
+  @apply w-4 h-4;
+}
+
+.divider {
+  @apply h-4 w-px bg-gray-700 mx-2;
+}
+
+/* Hover efekty */
+.btn-view:hover svg {
+  @apply text-white;
+}
+
+/* Aktywny stan przycisku */
+.btn-view.active {
+  @apply bg-gray-800 text-white;
+}
+
+.btn-view.active svg {
+  @apply text-white;
+}
+
+/* Animacje */
+@keyframes slideUp {
+  from {
+    transform: translate(-50%, 100%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+.bottom-controls.translate-y-full {
+  transform: translate(-50%, 150%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Responsywność */
+@media (max-width: 640px) {
+  .bottom-controls {
+    @apply bottom-2 px-2 py-1.5 gap-0.5 max-w-[95%];
+  }
+
+  .btn-view {
+    @apply px-2 py-1 text-xs;
+  }
+
+  .btn-view svg {
+    @apply w-3.5 h-3.5;
+  }
+
+  .divider {
+    @apply mx-1;
+  }
+}
+
+/* Animations */
+.fade-enter {
+  @apply opacity-0;
+}
+
+.fade-enter-active {
+  @apply opacity-100 transition-opacity duration-300;
+}
+
+.fade-exit {
+  @apply opacity-100;
+}
+
+.fade-exit-active {
+  @apply opacity-0 transition-opacity duration-300;
+}

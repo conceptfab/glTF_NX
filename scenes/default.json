@@ -1,0 +1,164 @@
+{
+  "cameras": {
+    "default": {
+      "fov": 45,
+      "near": 0.25,
+      "far": 2000,
+      "position": {
+        "x": 50,
+        "y": 25,
+        "z": 50
+      },
+      "target": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      }
+    },
+    "back": {
+      "fov": 45,
+      "near": 0.25,
+      "far": 2000,
+      "position": {
+        "x": 0,
+        "y": 25,
+        "z": -50
+      },
+      "target": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      }
+    },
+    "top": {
+      "fov": 45,
+      "near": 0.25,
+      "far": 2000,
+      "position": {
+        "x": 0,
+        "y": 50,
+        "z": 0
+      },
+      "target": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      }
+    }
+  },
+  "background": {
+    "color": 8683652
+  },
+  "environment": {
+    "enabled": true,
+    "path": "textures/",
+    "files": [
+      "posx.jpg",
+      "negx.jpg",
+      "posy.jpg",
+      "negy.jpg",
+      "posz.jpg",
+      "negz.jpg"
+    ],
+    "colorSpace": "srgb"
+  },
+  "lighting": {
+    "visible": true,
+    "ambient": {
+      "enabled": true,
+      "intensity": 0.5,
+      "color": 16777215
+    },
+    "hemisphere": {
+      "enabled": true,
+      "intensity": 1.0,
+      "skyColor": 16777215,
+      "groundColor": 8421504
+    }
+  },
+  "lights": [
+    {
+      "type": "DirectionalLight",
+      "name": "main_light",
+      "color": 16777215,
+      "intensity": 0.7,
+      "position": {
+        "x": 50,
+        "y": 50,
+        "z": 50
+      },
+      "helper": {
+        "visible": false,
+        "size": 7.5
+      },
+      "castShadow": true,
+      "shadow": {
+        "mapSize": {
+          "width": 2048,
+          "height": 2048
+        },
+        "camera": {
+          "left": -100,
+          "right": 100,
+          "top": 100,
+          "bottom": -100,
+          "near": 0.5,
+          "far": 500
+        },
+        "radius": 4,
+        "bias": -0.001,
+        "blurSamples": 8
+      }
+    }
+  ],
+  "axis": {
+    "length": 5,
+    "visible": false
+  },
+  "grid": {
+    "size": 125,
+    "divisions": 25,
+    "visible": false
+  },
+  "floor": {
+    "size": 125,
+    "segments": 128,
+    "visible": true,
+    "material": {
+      "color": 4210752,
+      "metalness": 0.2,
+      "roughness": 0.8,
+      "envMapIntensity": 0.5,
+      "clearcoat": 0.3,
+      "clearcoatRoughness": 0.2,
+      "opacity": 0.95,
+      "reflectivity": 0.5,
+      "transmission": 0.0,
+      "thickness": 0.5
+    },
+    "texture": {
+      "file": "opacity_floor.jpg",
+      "repeat": 1,
+      "filter": "linear"
+    }
+  },
+  "renderer": {
+    "antialias": true,
+    "outputColorSpace": "srgb",
+    "pixelRatio": "device",
+    "shadowMap": {
+      "enabled": true,
+      "type": "PCFSoftShadowMap"
+    },
+    "toneMapping": {
+      "enabled": true,
+      "type": "ACESFilmicToneMapping",
+      "exposure": 1.0
+    },
+    "physicallyCorrectLights": true,
+    "logarithmicDepthBuffer": true,
+    "precision": "highp",
+    "powerPreference": "high-performance",
+    "stencil": true
+  }
+}
