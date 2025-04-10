@@ -645,12 +645,31 @@ function animate() {
 // Funkcja do wczytywania listy modeli
 async function loadModelsList() {
   try {
+    console.log('🔍 Rozpoczynam wczytywanie listy modeli...');
+
     const response = await fetch('models/index.json');
-    const models = await response.json();
+    console.log('📡 Status odpowiedzi:', response.status, response.statusText);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const text = await response.text();
+    console.log('📄 Surowa odpowiedź:', text);
+
+    const models = JSON.parse(text);
+    console.log('📋 Sparsowane modele:', models);
+    console.log(`📊 Liczba modeli: ${models.length}`);
+
     const modelsList = document.getElementById('modelsList');
+    if (!modelsList) {
+      throw new Error('Nie znaleziono elementu modelsList!');
+    }
     modelsList.innerHTML = '';
 
-    models.forEach((model) => {
+    // Wyświetlamy każdy model bez żadnego filtrowania
+    models.forEach((model, index) => {
+      console.log(`🔧 Dodawanie modelu ${index + 1}/${models.length}:`, model);
       const modelItem = document.createElement('div');
       modelItem.className = 'model-item';
       modelItem.innerHTML = `
@@ -671,9 +690,19 @@ async function loadModelsList() {
 
       modelItem.addEventListener('click', () => loadModel(model));
       modelsList.appendChild(modelItem);
+      console.log(`✅ Dodano model ${index + 1}: ${model.name}`);
     });
+
+    console.log('✨ Zakończono wczytywanie listy modeli');
   } catch (error) {
-    console.error('Błąd podczas wczytywania listy modeli:', error);
+    console.error('❌ Błąd podczas wczytywania listy modeli:', error);
+    // Wyświetl błąd użytkownikowi
+    const errorMessage = document.getElementById('error-message');
+    if (errorMessage) {
+      errorMessage.textContent = `Błąd wczytywania listy modeli: ${error.message}`;
+      errorMessage.style.display = 'block';
+      errorMessage.hidden = false;
+    }
   }
 }
 
