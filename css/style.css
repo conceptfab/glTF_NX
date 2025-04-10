@@ -72,13 +72,17 @@ a:hover {
 
 /* Custom styles */
 .models-panel {
-  @apply fixed right-0 top-0 h-full w-72
+  @apply fixed right-0 w-72
          bg-gray-900/95 
          p-4
          border-l border-gray-800
          shadow-lg 
          transition-all duration-300 ease-in-out
          z-20;
+  height: 70vh;
+  bottom: 5vh;
+  border-top-left-radius: 0.5rem;
+  border-bottom-left-radius: 0.5rem;
 }
 
 .models-panel.translate-x-full {
@@ -316,4 +320,34 @@ a:hover {
 
 .toggle-controls.active svg {
   transform: rotate(180deg);
+}
+
+/* Ukryj przycisk toggle-controls gdy menu jest widoczne */
+.models-panel:not(.translate-x-full) ~ .toggle-controls {
+  display: none;
+}
+
+.hide-panel-btn {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: rgba(17, 24, 39, 0.95);
+  border-top: 1px solid rgba(31, 41, 55, 1);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.hide-panel-btn:hover {
+  background-color: rgba(31, 41, 55, 0.95);
+}
+
+.hide-panel-btn svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: rgb(209, 213, 219);
 }

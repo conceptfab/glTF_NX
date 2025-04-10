@@ -151,8 +151,14 @@ function initializeUI() {
 
   // Dodaj obsługę przycisku toggle dla panelu bocznego
   const toggleBtn = document.getElementById('togglePanel');
+  const hidePanelBtn = document.getElementById('hidePanelBtn');
+
   if (toggleBtn) {
     toggleBtn.addEventListener('click', toggleSidePanel);
+  }
+
+  if (hidePanelBtn) {
+    hidePanelBtn.addEventListener('click', toggleSidePanel);
   }
 
   // Dodaj obsługę przycisku pokazywania/ukrywania osi
