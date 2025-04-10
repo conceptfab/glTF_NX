@@ -20,6 +20,7 @@ let camera, scene, renderer;
 let currentModel = null;
 let lights = {};
 let lightSpheres = {};
+let lightHelpers = {}; // Nowa zmienna dla pomocników świateł
 
 // Zmienne dla UI
 let isControlBarVisible = true;
@@ -29,7 +30,7 @@ let isSidePanelVisible = true;
 let axis; // Zmienna dla grupy osi
 
 // Stan aplikacji
-let isLightingVisible = true;
+let isLightingVisible = false;
 let isAxisVisible = false;
 let isBoundingBoxVisible = false;
 let isStatsVisible = false;
@@ -244,8 +245,9 @@ function initializeUI() {
   if (showLightsBtn) {
     showLightsBtn.addEventListener('click', () => {
       isLightingVisible = !isLightingVisible;
-      Object.values(lightSpheres).forEach((sphere) => {
-        sphere.visible = isLightingVisible;
+      // Aktualizacja widoczności pomocników świateł
+      Object.values(lightHelpers).forEach((helper) => {
+        helper.visible = isLightingVisible;
       });
       showLightsBtn.classList.toggle('active');
       showLightsBtn.innerHTML = `
@@ -408,6 +410,15 @@ async function init() {
 
           // Dodaj światło do kolekcji
           lights[lightConfig.name] = light;
+
+          // Tworzenie pomocnika światła
+          const helper = new THREE.DirectionalLightHelper(
+            light,
+            lightConfig.helper?.size || 5
+          );
+          helper.visible = false; // Domyślnie ukryty
+          scene.add(helper);
+          lightHelpers[lightConfig.name] = helper;
         }
 
         if (light) {
@@ -415,9 +426,6 @@ async function init() {
           scene.add(light);
         }
       });
-
-      // Tworzenie wizualizacji świateł
-      createLightSpheres();
     }
 
     // Inicjalizacja renderera
@@ -585,7 +593,12 @@ async function init() {
     axis.visible = sceneConfig.axis.visible;
 
     // Ustawienie początkowego stanu oświetlenia
-    isLightingVisible = sceneConfig.lighting.visible;
+    // isLightingVisible = sceneConfig.lighting.visible; // Zawsze false na starcie
+
+    // Aktualizacja widoczności wizualizacji świateł
+    // Object.values(lightSpheres).forEach((sphere) => {
+    //   if (sphere) sphere.visible = isLightingVisible;
+    // });
 
     // Aktualizacja przycisku oświetlenia
     const showLightsBtn = document.getElementById('showLights');
@@ -777,9 +790,12 @@ async function loadModel(model) {
       clickedItem.classList.add('active');
     }
 
-    // Chowanie panelu bocznego po wczytaniu modelu
-    if (isSidePanelVisible) {
-      toggleSidePanel();
+    // Po załadowaniu modelu, ukryj panel boczny
+    const modelsPanel = document.querySelector('.models-panel');
+    const togglePanel = document.getElementById('togglePanel');
+    if (modelsPanel && togglePanel) {
+      modelsPanel.classList.remove('visible');
+      togglePanel.classList.remove('active');
     }
   } catch (error) {
     console.error('Błąd podczas wczytywania modelu:', error);
@@ -931,6 +947,9 @@ function createLightSpheres() {
   });
   lightSpheres = {};
 
+  // Jeśli światła są wyłączone, nie tworzymy wizualizacji
+  if (!isLightingVisible) return;
+
   // Tworzymy nowe wizualizacje dla każdego światła
   Object.entries(lights).forEach(([key, light]) => {
     if (light instanceof THREE.DirectionalLight) {
@@ -957,3 +976,32 @@ function createLightSpheres() {
     }
   });
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const toggleControls = document.getElementById('toggleControls');
+  const bottomControls = document.querySelector('.bottom-controls');
+
+  toggleControls.addEventListener('click', () => {
+    toggleControls.classList.toggle('active');
+    bottomControls.classList.toggle('visible');
+  });
+
+  const togglePanel = document.getElementById('togglePanel');
+  const modelsPanel = document.querySelector('.models-panel');
+  const modelsList = document.getElementById('modelsList');
+
+  togglePanel.addEventListener('click', () => {
+    modelsPanel.classList.toggle('visible');
+    togglePanel.classList.toggle('active');
+  });
+
+  // Obsługa wyboru modelu
+  modelsList.addEventListener('click', (event) => {
+    const modelButton = event.target.closest('.model-button');
+    if (modelButton) {
+      // Ukryj panel po wybraniu modelu
+      modelsPanel.classList.remove('visible');
+      togglePanel.classList.remove('active');
+    }
+  });
+});
